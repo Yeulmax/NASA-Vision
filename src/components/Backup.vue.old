@@ -1,0 +1,222 @@
+<template>
+  <header>
+
+
+    <div class="grid grid-cols-6 border-solid border-red-500 border-4 h-screen">
+
+      <div class="col-start-2 col-span-4 border-green-500 border-4 m-5 h-auto">
+
+        <div class="flex justify-center items-center mt-16">
+          <div class="text-center border-black border-4 w-2/3 h-96">
+            <h1 class="text-3xl">HEADING</h1>
+            <p class="text-xl">Sub text</p>
+          </div>
+        </div>
+
+        <!--
+        <div class="flex justify-center items-center">
+          <div class="border-pink-500 border-4 m-1 text-center">
+            <h1 class="text-3xl">HEADING</h1>
+            <p class="text-xl">Sub text</p>
+          </div>
+        </div>
+        -->
+
+      </div>
+
+      <div class="col-start-2 col-span-4 border-pink-500 border-4 m-5 ">
+
+        <!--
+                <div class="border-red-500 border-4 ">
+                  <img :src="timelapse" alt="" class="border-green-600 border-4 h-screen">
+                </div>
+
+
+                <div class="grid grid-cols-3">
+
+
+                  <h1 class="col-span-3 font-8xl font-extrabold text-red-500">FHAZ</h1>
+
+                  <div v-for="pic in FHAZ" :key="pic.id">
+                    <img :src="pic.img_src" alt="" class="border-black border-2 w-auto">
+                  </div>
+        -
+                  <h1 class="col-span-3 font-8xl font-extrabold text-red-500">RHAZ</h1>
+                  <div v-for="pic in RHAZ" :key="pic.id">
+                    <img :src="pic.img_src" alt="" class="border-black border-2 w-auto">
+                  </div>
+
+                  <h1 class="col-span-3 font-8xl font-extrabold text-red-500">MAST</h1>
+                  <div v-for="pic in MAST" :key="pic.id">
+                    <img :src="pic.img_src" alt="" class="border-black border-2 w-auto">
+                  </div>
+
+                  <h1 class="col-span-3 font-8xl font-extrabold text-red-500">CHEMCAM</h1>
+                  <div v-for="pic in CHEMCAM" :key="pic.id">
+                    <img :src="pic.img_src" alt="" class="border-black border-2 w-auto">
+                  </div>
+
+                  <h1 class="col-span-3 font-8xl font-extrabold text-red-500">MAHLI</h1>
+                  <div v-for="pic in MAHLI" :key="pic.id">
+                    <img :src="pic.img_src" alt="" class="border-black border-2 w-auto">
+                  </div>
+
+                  <h1 class="col-span-3 font-8xl font-extrabold text-red-500">MARDI</h1>
+                  <div v-for="pic in MARDI" :key="pic.id">
+                    <img :src="pic.img_src" alt="" class="border-black border-2 w-auto">
+                  </div>
+
+                  <h1 class="col-span-3 font-8xl font-extrabold text-red-500">NAVCAM</h1>
+                  <div v-for="pic in NAVCAM" :key="pic.id">
+                    <img :src="pic.img_src" alt="" class="border-black border-2 w-auto">
+                  </div>
+
+
+                </div>-->
+      </div>
+      <div class="col-start-2 col-span-4 border-blue-500 border-4 m-5"></div>
+    </div>
+  </header>
+</template>
+
+<script>
+import axios from "axios";
+
+export default {
+  name: "Main",
+  data() {
+    return {
+      API_KEY: process.env.VUE_APP_API_KEY,
+      date: '2022-1-1',
+      test: [],
+      FHAZ: [],
+      RHAZ: [],
+      MAST: [],
+      CHEMCAM: [],
+      MAHLI: [],
+      MARDI: [],
+      NAVCAM: [],
+      timelapse: "",
+      counter: 0
+    }
+  },
+  computed: {
+    axiosParams() {
+      const params = new URLSearchParams();
+      params.append('api_key', this.API_KEY);
+      return params;
+    }
+  },
+
+  async created() {
+
+    await axios
+        .get(`http://localhost:8080/mars-photos/api/v1/rovers/curiosity/photos?camera=FHAZ&earth_date=` + this.date, {params: this.axiosParams})
+        //.then(response => (console.log('HEY', response.data.photos)))
+        .then(response => (this.FHAZ = response.data.photos))
+        .catch(error => {
+          console.log(error)
+        });
+
+
+    /*
+    for (let i = 3; i < 25 ; i++){
+      await axios
+          .get(`http://localhost:8080/mars-photos/api/v1/rovers/curiosity/photos?camera=FHAZ&earth_date=2021-2-` + i, {params: this.axiosParams})
+          //.then(console.log('HEY', i))
+          .then(response => (this.concatPics(response.data.photos)))
+          .catch(error => {
+            console.log(error)
+          });
+    }
+
+    this.startTimelapse()
+
+    */
+
+
+
+
+
+
+/*
+    await axios
+        .get(`http://localhost:8080/mars-photos/api/v1/rovers/curiosity/photos?camera=FHAZ&earth_date=` + this.date, {params: this.axiosParams})
+        //.then(response => (console.log('HEY', response.data.photos)))
+        .then(response => (this.FHAZ = response.data.photos))
+        .catch(error => {
+          console.log(error)
+        });
+
+
+    await axios
+        .get(`http://localhost:8080/mars-photos/api/v1/rovers/curiosity/photos?camera=RHAZ&earth_date=` + this.date, {params: this.axiosParams})
+        .then(response => (this.RHAZ = response.data.photos))
+        .catch(error => {
+          console.log(error)
+        });
+
+    await axios
+        .get(`http://localhost:8080/mars-photos/api/v1/rovers/curiosity/photos?camera=MAST&earth_date=` + this.date, {params: this.axiosParams})
+        .then(response => (this.MAST = response.data.photos))
+        .catch(error => {
+          console.log(error)
+        });
+
+    await axios
+        .get(`http://localhost:8080/mars-photos/api/v1/rovers/curiosity/photos?camera=CHEMCAM&earth_date=`, {params: this.axiosParams})
+        .then(response => (this.CHEMCAM = response.data.photos))
+        .catch(error => {
+          console.log(error)
+        });
+
+    await axios
+        .get(`http://localhost:8080/mars-photos/api/v1/rovers/curiosity/photos?camera=MAHLI&earth_date=`, {params: this.axiosParams})
+        .then(response => (this.MAHLI = response.data.photos))
+        .catch(error => {
+          console.log(error)
+        });
+
+    await axios
+        .get(`http://localhost:8080/mars-photos/api/v1/rovers/curiosity/photos?camera=MARDI&earth_date=`, {params: this.axiosParams})
+        .then(response => (this.MARDI = response.data.photos))
+        .catch(error => {
+          console.log(error)
+        });
+
+    await axios
+        .get(`http://localhost:8080/mars-photos/api/v1/rovers/curiosity/photos?camera=NAVCAM&earth_date=`, {params: this.axiosParams})
+        .then(response => (this.NAVCAM = response.data.photos))
+        .catch(error => {
+          console.log(error)
+        });
+*/
+
+
+  },
+  methods: {
+    concatPics(pics){
+      pics.forEach(pic =>  this.FHAZ.push(pic))
+    },
+
+    startTimelapse(){
+      setInterval(this.testTimelapse, 125)
+    },
+
+    testTimelapse(){
+      if (this.counter < this.FHAZ.length){
+        this.timelapse = this.FHAZ[this.counter].img_src
+        this.counter++
+        //console.log('N°', this.counter)
+      }else{
+        this.counter = 0
+      }
+    }
+  }
+
+};
+</script>
+
+<style>
+
+</style>
