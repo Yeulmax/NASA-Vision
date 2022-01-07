@@ -14,8 +14,6 @@
       </div>
       -->
 
-
-
       <div class="col-start-2 col-span-4 border-yellow-300 border-4 m-5">
 
         <!-- Rover -->
@@ -27,7 +25,7 @@
         <!-- Camera -->
         <select name="cameraSelect" id="cameraSelect" v-model="selectedCamera" class="m-4">
           <option value="" disabled selected>Camera</option>
-          <option v-for="camera in availableCameras" v-bind:key="camera.index" v-bind:value="camera">{{ camera }}</option>
+          <option v-for="camera in availableCameras" v-bind:key="camera" v-bind:value="camera">{{ camera }}</option>
         </select>
 
         <!-- Date -->
@@ -119,7 +117,7 @@ export default {
         'MARDI'  : '',
         'NAVCAM' : '',
       },
-      test: [1,2,3,4,5],
+      test: '',
       timelapse: "",
       counter: 0
     }
@@ -128,8 +126,11 @@ export default {
   computed: {
     // Retourne les cameras associés au rover sélectionné
     availableCameras() {
-      const selectedRover = this.roverList.filter(rover => rover.name === this.selectedRover)
-      return selectedRover
+      if(this.selectedRover){
+        const selectedRover = this.roverList.filter(rover => rover.name === this.selectedRover)
+        return selectedRover[0].cameraList
+      }
+      return null
     },
     axiosParams() {
       const params = new URLSearchParams();
@@ -169,6 +170,8 @@ export default {
   },
 
   watch:{
+    selectedRover(){
+    },
     selectedCamera(){
       if (this.selectedDate) this.fetchRoverData()
     },
