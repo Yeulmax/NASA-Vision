@@ -16,27 +16,25 @@
 
 
 
-      <div class="col-start-2 col-span-4 border-yellow-300 border-4 m-5 ">
+      <div class="col-start-2 col-span-4 border-yellow-300 border-4 m-5">
 
-
-        <select name="cameraList" id="cameraList" v-model="selectedCamera" class="m-4">
-          <option value="" selected="selected">Select Camera</option>
-          <option value="FHAZ">FHAZ</option>
-          <option value="RHAZ">RHAZ</option>
-          <option value="MAST">MAST</option>
-          <option value="CHEMCAM">CHEMCAM</option>
-          <option value="MAHLI">MAHLI</option>
-          <option value="MARDI">MARDI</option>
-          <option value="NAVCAM">NAVCAM</option>
+        <!-- Rover -->
+        <select name="roverSelect" id="roverSelect" v-model="selectedRover" class="m-4">
+          <option value="" disabled selected>Rover</option>
+          <option v-for="rover in roverList" v-bind:key="rover.name" v-bind:value="rover.name">{{ rover.name }}</option>
         </select>
 
+        <!-- Camera -->
+        <select name="cameraSelect" id="cameraSelect" v-model="selectedCamera" class="m-4">
+          <option value="" disabled selected>Camera</option>
+          <option v-for="camera in availableCameras" v-bind:key="camera.index" v-bind:value="camera">{{ camera }}</option>
+        </select>
+
+        <!-- Date -->
         <label for="datePicker">Date:</label>
+        <input type="date" id="datePicker" name="trip-start" min="2012-08-06" max="2022-01-01" v-model="selectedDate">
 
-        <input type="date" id="datePicker" name="trip-start"
-               min="2012-08-06" max="2022-01-01" v-model="selectedDate">
-
-
-
+        <!-- Photos -->
         <div class="grid grid-cols-3 border-blue-300 border-4">
           <h1 class="col-span-3 font-8xl font-extrabold text-red-500 text-left">{{ this.selectedCamera}}</h1>
           <div v-for="photo in roverData[selectedCamera]" :key="photo.id">
@@ -55,10 +53,61 @@
 <script>
 import axios from "axios";
 
+/* TODO
+  -dynamic status
+  -description cameras
+  -max date
+  -Move roverlist
+  -plugin send last images
+  -timelapse + mouse picking
+ */
 export default {
   name: "Main",
   data() {
     return {
+      roverList: [
+        {
+          name: 'Spirit',
+          launchDate: '2003-06-10',
+          landingDate: '2004-01-04',
+          maxDate: '2010-03-21',
+          status: 'complete',
+          cameraList: ['FHAZ', 'RHAZ', 'NAVCAM', 'PANCAM', 'MINITES']
+        },
+        {
+          name: 'Opportunity',
+          launchDate: '2003-07-07',
+          landingDate: '2004-01-25',
+          maxDate: '2018-06-11',
+          status: 'complete',
+          cameraList: ['FHAZ', 'RHAZ', 'NAVCAM', 'PANCAM', 'MINITES']
+        },
+        {
+          name: 'Curiosity',
+          launchDate: '2011-11-26',
+          landingDate: '2012-08-06',
+          maxDate: '2022-01-06',
+          status: 'active',
+          cameraList: ['FHAZ', 'RHAZ', 'MAST', 'CHEMCAM', 'MAHLI', 'MARDI', 'NAVCAM']
+        },
+        {
+          name: 'Perseverance',
+          launchDate: '2020-07-30',
+          landingDate: '2021-02-18',
+          maxDate: '2004-01-04',
+          status: 'active',
+          cameraList: ['EDL_RUCAM', 'EDL_RDCAM', 'EDL_DDCAM', 'EDL_PUCAM1',
+            'EDL_PUCAM2', 'NAVCAM_LEFT', 'NAVCAM_RIGHT', 'MCZ_RIGHT',
+            'MCZ_LEFT', 'FRONT_HAZCAM_LEFT_A', 'FRONT_HAZCAM_RIGHT_A',
+            'REAR_HAZCAM_LEFT', 'REAR_HAZCAM_RIGHT', 'SKYCAM', 'SHERLOC_WATSON']
+        }
+      ],
+      searchParameters: {
+        'selectedRover'  : '',
+        'selectedCamera' : '',
+        'selectedDate'   : '',
+      },
+      selectedRover: '',
       selectedDate: '',
       selectedCamera: '',
       roverData: {
@@ -70,23 +119,30 @@ export default {
         'MARDI'  : '',
         'NAVCAM' : '',
       },
-      test: [],
+      test: [1,2,3,4,5],
       timelapse: "",
       counter: 0
     }
   },
+
   computed: {
+    // Retourne les cameras associés au rover sélectionné
+    availableCameras() {
+      const selectedRover = this.roverList.filter(rover => rover.name === this.selectedRover)
+      return selectedRover
+    },
     axiosParams() {
       const params = new URLSearchParams();
       params.append('api_key', process.env.VUE_APP_API_KEY);
       return params;
     }
   },
-  methods: {
 
+  methods: {
     async fetchRoverData(){
       await axios
-          .get(`http://localhost:8080/mars-photos/api/v1/rovers/curiosity/photos?camera=${this.selectedCamera}&earth_date=${this.selectedDate}`, {params: this.axiosParams})
+          .get(`http://localhost:8080/mars-photos/api/v1/rovers/curiosity/photos?camera=${this.selectedCamera}&earth_date=${this.selectedDate}`,
+              {params: this.axiosParams})
           .then(response => (this.roverData[this.selectedCamera] = response.data.photos))
           .catch(error => {
             console.log(error)
@@ -111,6 +167,7 @@ export default {
       }
     }
   },
+
   watch:{
     selectedCamera(){
       if (this.selectedDate) this.fetchRoverData()
